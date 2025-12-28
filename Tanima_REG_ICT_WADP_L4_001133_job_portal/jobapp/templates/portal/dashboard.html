@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Dashboard</h2>
+
+{% if user.user_type == 'recruiter' %}
+    <h3>Posted Jobs</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Applications</th>
+                <th>Date Posted</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs_posted %}
+            <tr>
+                <td>{{ job.title }}</td>
+                <td>{{ job.applications.count }}</td>
+                <td>{{ job.created_at|date:"M d, Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3">haven't posted any jobs yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{% url 'add_job' %}" class="btn">Post New Job</a>
+
+{% else %}
+    <h3>Jobs Matching Skills</h3>
+    <p> Skills: <em>{{ user.skills }}</em> <a href="{% url 'manage_profile' %}">(Edit)</a></p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Company</th>
+                <th>Skills Required</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for matched_job in matched_jobs %}
+            <tr>
+                <td>{{ matched_job.title }}</td>
+                <td>{{ matched_job.recruiter.company_name }}</td>
+                <td>{{ matched_job.skills_required }}</td>
+                <td><a href="{% url 'apply_job' matched_job.id %}" class="btn">Apply</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4">No jobs match your skills currently.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Applied Jobs</h3>
+    <ul>
+        {% for app in applied_jobs %}
+            <li>Applied to <strong>{{ app.job.title }}</strong> at {{ app.job.recruiter.company_name }} on {{ app.applied_at|date:"M d, Y" }}</li>
+        {% empty %}
+            <li> haven't applied </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% endblock %}
